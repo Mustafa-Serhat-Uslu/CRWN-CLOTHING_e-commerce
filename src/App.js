@@ -5,6 +5,7 @@ import "./App.css";
 
 import HomePage from "./components/page/homepage/homepage.component";
 import ShopPage from "./components/page/shop/shop.component";
+import Header from "./components/header/header.component.jsx";
 
 const HatsPage = () => (
   <div>
@@ -13,9 +14,11 @@ const HatsPage = () => (
 );
 
 //without exact the router will add pages end to end (if there is no switch) if a sub regex matches
+//with just one object header is always present whatever the Routes is
 function App() {
   return (
     <div> 
+      <Header/> 
       <Routes>
         <Route exact path='/' element={<HomePage/>} />
         <Route path='/shop' element={<ShopPage/>} />
