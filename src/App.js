@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import { connect } from "react-redux";
 
 import "./App.css";
 
@@ -8,6 +9,7 @@ import ShopPage from "./components/page/shop/shop.component";
 import SignInAndSignUpPage from "./components/page/sign-in-and-sign-up/sign-in-and-sign-up.component";
 import Header from "./components/header/header.component";
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
+import { setCurrentUser } from "./components/redux/user/user.actions";
 
 const HatsPage = () => (
   <div>
@@ -17,39 +19,27 @@ const HatsPage = () => (
 
 //without exact the router will add pages end to end (if there is no switch) if a sub regex matches
 //with just one object header is always present whatever the Routes is
-class App extends React.Component{
-  constructor() {
-    super();
-
-    this.state = {
-      currentUser: null
-    };
-  }
-
+class App extends React.Component {
   unsubscribeFromAuth = null;
 
   componentDidMount() {
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
-      if (userAuth){
+    const { setCurrentUser } = this.props;
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
+      if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
 
-        userRef.onSnapshot(snapShot => {
-          this.setState({
-            currentUser: {
-              id: snapShot.id,
-              ...snapShot.data()
-            }
+        userRef.onSnapshot((snapShot) => {
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data(),
           });
-
-
-          console.log(this.state);
         });
-        
       }
+      
       else{
-        this.setState({currentUser: userAuth });
+      setCurrentUser({ userAuth });
       }
-
     });
   }
 
@@ -60,7 +50,7 @@ class App extends React.Component{
   render() {
     return (
       <div>
-        <Header currentUser={this.state.currentUser} />
+        <Header />
         <Routes>
           <Route exact path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
@@ -71,4 +61,9 @@ class App extends React.Component{
   }
 }
 
-export default App;
+//Dispatch passes the action object it receives to every reducer
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: (user) => dispatch(setCurrentUser(user))
+});
+
+export default connect(null, mapDispatchToProps)(App);
