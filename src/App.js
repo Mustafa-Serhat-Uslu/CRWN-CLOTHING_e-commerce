@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { connect } from "react-redux";
 
 import "./App.css";
@@ -32,14 +32,12 @@ class App extends React.Component {
         userRef.onSnapshot((snapShot) => {
           setCurrentUser({
             id: snapShot.id,
-            ...snapShot.data(),
+            ...snapShot.data()
           });
         });
-      }
-      
-      else{
-      setCurrentUser({ userAuth });
-      }
+      } 
+
+        setCurrentUser(userAuth);
     });
   }
 
@@ -54,16 +52,31 @@ class App extends React.Component {
         <Routes>
           <Route exact path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
-          <Route path="/signin" element={<SignInAndSignUpPage />} />
+          <Route
+            exact
+            path='/signin'
+            element={
+              this.props.currentUser ? (
+                <Navigate to='/' />
+              ) : (
+                <SignInAndSignUpPage />
+              )
+            }
+          />
         </Routes>
       </div>
     );
   }
 }
 
-//Dispatch passes the action object it receives to every reducer
-const mapDispatchToProps = dispatch => ({
-  setCurrentUser: (user) => dispatch(setCurrentUser(user))
+//reading user state in App to make use a already signed in user doesnt access to sign in page again
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser,
 });
 
-export default connect(null, mapDispatchToProps)(App);
+//Dispatch passes the action object it receives to every reducer
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
