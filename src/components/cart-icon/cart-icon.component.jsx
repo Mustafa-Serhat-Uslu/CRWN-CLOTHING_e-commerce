@@ -1,8 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import { toggleCartHidden } from "../redux/cart/cart.actions";
-import { selectCartItemsCount } from "../redux/cart/cart.selectors";
+import { toggleCartHidden } from "../../redux/cart/cart.actions";
+import { selectCartItemsCount } from "../../redux/cart/cart.selectors";
+import { createStructuredSelector, StructuredSelectorCreator } from "reselect";
 
 import { ReactComponent as ShoppingIcon } from "../../assets/shopping-bag.svg";
 
@@ -23,8 +24,8 @@ const mapDispatchToProps = (dispatch) => ({
 // Here memoization is used, via Reselect library, if no memoization is used,
 // even if the cart state isnt changed but the user state is changed, this func still gets a new state object
 // still re-renders the whole component, that is dumb
-const mapStateToProps = (state) => ({
-  itemCount: selectCartItemsCount(state),
+const mapStateToProps = createStructuredSelector({
+  itemCount: selectCartItemsCount,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);

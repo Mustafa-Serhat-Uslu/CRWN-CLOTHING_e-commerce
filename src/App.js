@@ -1,15 +1,21 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { connect } from "react-redux";
+import { createStructuredSelector } from "reselect";
 
 import "./App.css";
 
 import HomePage from "./components/page/homepage/homepage.component";
 import ShopPage from "./components/page/shop/shop.component";
 import SignInAndSignUpPage from "./components/page/sign-in-and-sign-up/sign-in-and-sign-up.component";
+import CheckoutPage from "./components/page/checkout/checkout.component";
+
 import Header from "./components/header/header.component";
+
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
-import { setCurrentUser } from "./components/redux/user/user.actions";
+
+import { setCurrentUser } from "./redux/user/user.actions";
+import { selectCurrentUser } from "./redux/user/user.selector";
 
 const HatsPage = () => (
   <div>
@@ -32,12 +38,12 @@ class App extends React.Component {
         userRef.onSnapshot((snapShot) => {
           setCurrentUser({
             id: snapShot.id,
-            ...snapShot.data()
+            ...snapShot.data(),
           });
         });
-      } 
+      }
 
-        setCurrentUser(userAuth);
+      setCurrentUser(userAuth);
     });
   }
 
@@ -52,12 +58,13 @@ class App extends React.Component {
         <Routes>
           <Route exact path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
+          <Route exact path="/checkout" element={<CheckoutPage/>} />
           <Route
             exact
-            path='/signin'
+            path="/signin"
             element={
               this.props.currentUser ? (
-                <Navigate to='/' />
+                <Navigate to="/" />
               ) : (
                 <SignInAndSignUpPage />
               )
@@ -70,12 +77,12 @@ class App extends React.Component {
 }
 
 //reading user state in App to make use a already signed in user doesnt access to sign in page again
-const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser,
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser
 });
 
 //Dispatch passes the action object it receives to every reducer
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });
 
