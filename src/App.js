@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 
@@ -15,13 +15,7 @@ import Header from "./components/header/header.component";
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 
 import { setCurrentUser } from "./redux/user/user.actions";
-import { selectCurrentUser } from "./redux/user/user.selector";
-
-const HatsPage = () => (
-  <div>
-    <h1>HATS PAGE</h1>
-  </div>
-);
+import { selectCurrentUser } from "./redux/user/user.selector"; 
 
 //without exact the router will add pages end to end (if there is no switch) if a sub regex matches
 //with just one object header is always present whatever the Routes is
@@ -30,7 +24,7 @@ class App extends React.Component {
 
   componentDidMount() {
     const { setCurrentUser } = this.props;
-
+    
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
@@ -55,26 +49,27 @@ class App extends React.Component {
     return (
       <div>
         <Header />
-        <Routes>
-          <Route exact path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route exact path="/checkout" element={<CheckoutPage/>} />
+        <Switch>
+          <Route exact path='/' component={HomePage} />
+          <Route path='/shop' component={ShopPage} />
+          <Route exact path='/checkout' component={CheckoutPage} />
           <Route
             exact
-            path="/signin"
-            element={
+            path='/signin'
+            render={() =>
               this.props.currentUser ? (
-                <Navigate to="/" />
+                <Redirect to='/' />
               ) : (
                 <SignInAndSignUpPage />
               )
             }
           />
-        </Routes>
+        </Switch>
       </div>
     );
   }
 }
+  
 
 //reading user state in App to make use a already signed in user doesnt access to sign in page again
 const mapStateToProps = createStructuredSelector({
@@ -86,4 +81,4 @@ const mapDispatchToProps = (dispatch) => ({
   setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default  connect(mapStateToProps, mapDispatchToProps)(App);
