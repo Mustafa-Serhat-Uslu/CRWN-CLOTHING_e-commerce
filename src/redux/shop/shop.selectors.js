@@ -19,4 +19,4 @@ export const selectCollection = memoize((collectionUrlParam) =>
     collections => collections[collectionUrlParam])
   );
 
-  // Data normalization in converting an arra to an object
+  // Data normalization is converting an array in to an object
