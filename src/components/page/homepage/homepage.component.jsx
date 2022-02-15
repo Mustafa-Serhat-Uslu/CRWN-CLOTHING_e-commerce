@@ -2,13 +2,13 @@ import React from "react";
 
 import Directory from "../../directory/directory.component";
 
-import "./homepage.styles.scss";
+import { HomePageContainer } from "./homepage.styles";
 
 //functional method so no lifecycle methods and no state
 const HomePage = () => (
-  <div className="homepage">
+  <HomePageContainer>
     <Directory />
-  </div>
+  </HomePageContainer>
 );
 
 export default HomePage;
