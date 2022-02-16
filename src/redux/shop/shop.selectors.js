@@ -10,13 +10,22 @@ export const selectCollections = createSelector(
 
 export const selectCollectionsForPreview = createSelector(
     [selectCollections],
-    collections => Object.keys(collections).map(key => collections[key])
+    collections => collections ? Object.keys(collections).map(key => collections[key]) : []
 )
 
-//memoizing the return of the function
+//memoizing the return of the function   // Data normalization is converting an array in to an object
 export const selectCollection = memoize((collectionUrlParam) =>
   createSelector([selectCollections], 
-    collections => collections[collectionUrlParam])
+    collections => collections ? collections[collectionUrlParam] : null)
   );
 
-  // Data normalization is converting an array in to an object
+export const selectIsCollectionFetching =  createSelector(
+  [selectShop],
+  shop => shop.isFetching
+)
+
+// with double band if collections is loaded, will return true
+export const selectIsCollectionsLoaded = createSelector(
+  [selectShop],
+  shop=> !!shop.collections
+)
