@@ -15,8 +15,8 @@ import Header from "./components/header/header.component";
 
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 
-import { setCurrentUser } from "./redux/user/user.actions";
 import { selectCurrentUser } from "./redux/user/user.selector"; 
+import { checkUserSession } from "./redux/user/user.actions";
 import { selectCollectionsForPreview } from "./redux/shop/shop.selectors";
 
 //without exact the router will add pages end to end (if there is no switch) if a sub regex matches
@@ -25,22 +25,8 @@ class App extends React.Component {
   unsubscribeFromAuth = null;
 
   componentDidMount() {
-    const { setCurrentUser } = this.props;
-    
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
-      if (userAuth) {
-        const userRef = await createUserProfileDocument(userAuth);
-
-        userRef.onSnapshot((snapShot) => {
-          setCurrentUser({
-            id: snapShot.id,
-            ...snapShot.data(),
-          });
-        });
-      }
-
-      setCurrentUser(userAuth);
-    });
+    const {checkUserSession} = this.props;
+    checkUserSession();
   }
 
   componentWillUnmount() {
@@ -78,9 +64,10 @@ const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
 });
 
+const mapDispatchToProps = dispatch => ({
+  checkUserSession: () => dispatch(checkUserSession())
+})
+
 //Dispatch passes the action object it receives to every reducer
-const mapDispatchToProps = (dispatch) => ({
-  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
-});
 
 export default  connect(mapStateToProps, mapDispatchToProps)(App);
