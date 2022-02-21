@@ -1,4 +1,4 @@
-import react from "react";
+import react, {useState} from "react";
 import { connect } from "react-redux";
 
 import FormInput from "../form-input/form-input.component";
@@ -12,45 +12,36 @@ import {
 import "./sign-in.styles.scss";
 
 //what the user types in will be stored here
-class SignIn extends react.Component {
-  constructor(props) {
-    super(props);
+const SignIn = ({emailSignInStart, googleSignInStart}) => {
 
-    this.state = {
-      email: "",
-      password: "",
-    };
-  }
+  const [userCredentials, setCredentials] = useState({email: '', password: ''})
 
-  handleSubmit = async event => {
+  const {email, password} = userCredentials;
+
+  const handleSubmit = async event => {
     event.preventDefault();
-
-    const {emailSignInStart} = this.props;
-    const {email, password} = this.state;
 
     emailSignInStart(email, password);
   };
 
-  handleChange = (event) => {
+  const handleChange = (event) => {
     event.preventDefault();
     const { value, name } = event.target;
 
-    this.setState({ [name]: value });
+    setCredentials({...userCredentials, [name]: value });
   };
 
-  render() {
-    const { googleSignInStart } = this.props;
-    return (
+  return (
       <div className="sign-in">
         <h2>I already have an account.</h2>
         <span>Sign in with your email and password.</span>
 
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <FormInput
             name="email"
             type="email"
-            value={this.state.email}
-            handleChange={this.handleChange}
+            value={email}
+            handleChange={handleChange}
             label={"email"}
             required
           />
@@ -58,8 +49,8 @@ class SignIn extends react.Component {
           <FormInput
             name="password"
             type="password"
-            value={this.state.password}
-            handleChange={this.handleChange}
+            value={password}
+            handleChange={handleChange}
             label={"password"}
             required
           />
@@ -77,7 +68,6 @@ class SignIn extends react.Component {
       </div>
     );
   }
-}
 
 const mapDispatchToProps = (dispatch) => ({
   googleSignInStart: () => dispatch(googleSignInStart),

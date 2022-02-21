@@ -1,10 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
-import { connect } from "react-redux";
-import { createStructuredSelector } from "reselect";
-import styled from "styled-components";
-
-import "./App.css";
+import { useSelector, useDispatch } from "react-redux"; //useSelector == mapStateToProps
 
 import HomePage from "./components/page/homepage/homepage.component";
 import ShopPage from "./components/page/shop/shop.component";
@@ -13,61 +9,49 @@ import CheckoutPage from "./components/page/checkout/checkout.component";
 
 import Header from "./components/header/header.component";
 
-import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
+import {GlobalStyle} from './global.styles';
 
-import { selectCurrentUser } from "./redux/user/user.selector"; 
+import { selectCurrentUser } from "./redux/user/user.selector";
 import { checkUserSession } from "./redux/user/user.actions";
-import { selectCollectionsForPreview } from "./redux/shop/shop.selectors";
 
 //without exact the router will add pages end to end (if there is no switch) if a sub regex matches
 //with just one object header is always present whatever the Routes is
-class App extends React.Component {
-  unsubscribeFromAuth = null;
+const App = () => {
 
-  componentDidMount() {
-    const {checkUserSession} = this.props;
-    checkUserSession();
-  }
+  const currentUser = useSelector(selectCurrentUser)
+  const dispatch = useDispatch();
 
-  componentWillUnmount() {
-    this.unsubscribeFromAuth();
-  }
-
-  render() {
-    return (
-      <div>
-        <Header />
-        <Switch>
-          <Route exact path='/' component={HomePage} />
-          <Route path='/shop' component={ShopPage} />
-          <Route exact path='/checkout' component={CheckoutPage} />
-          <Route
-            exact
-            path='/signin'
-            render={() =>
-              this.props.currentUser ? (
-                <Redirect to='/' />
-              ) : (
-                <SignInAndSignUpPage />
-              )
-            }
-          />
-        </Switch>
-      </div>
-    );
-  }
-}
+  // checkUserSession is passed to the array bc we want it to behave only when component mounts, on didComponentMount()
+  // if that props was passed in from a parent component the story would be diffent
+  useEffect(() => {
+    dispatch(checkUserSession());
+  }, [dispatch]); 
   
+  // dispatch as a dependency eact time the components mounts since the dispatch func in redefined the component will run useEffect twice I think
+  // we want useEffect to run once when component mount but if we dont pass 
 
-//reading user state in App to make use a already signed in user doesnt access to sign in page again
-const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser,
-});
+  return (
+    <div>
+    <GlobalStyle/>
+      <Header />
+      <Switch>
+        <Route exact path="/" component={HomePage} />
+        <Route path="/shop" component={ShopPage} />
+        <Route exact path="/checkout" component={CheckoutPage} />
+        <Route
+          exact
+          path="/signin"
+          render={() =>
+            currentUser ? <Redirect to="/" /> : <SignInAndSignUpPage />
+          }
+        />
+      </Switch>
+    </div>
+  );
+};
 
-const mapDispatchToProps = dispatch => ({
-  checkUserSession: () => dispatch(checkUserSession())
-})
+export default App;
 
-//Dispatch passes the action object it receives to every reducer
+// mapStateToProps is reading user state in App to make use a already signed in user doesnt access to sign in page again
+// Dispatch passes the action object it receives to every reducer
 
-export default  connect(mapStateToProps, mapDispatchToProps)(App);
