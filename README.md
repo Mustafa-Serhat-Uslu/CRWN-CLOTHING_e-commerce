@@ -1,6 +1,6 @@
 Link to live site:
 https://mus-crwn-live.herokuapp.com/
 
-This is a bootcamp project, goal of which is to learn the following tech stack:
+The tech stack:
 
 React, Node, Next.js, Typescript, Redux, GraphQL, Apollo, REST, NPM, HTML, CSS 
